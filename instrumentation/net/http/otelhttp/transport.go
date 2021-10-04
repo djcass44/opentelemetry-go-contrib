@@ -105,7 +105,9 @@ func (t *Transport) RoundTrip(r *http.Request) (*http.Response, error) {
 
 	span.SetAttributes(semconv.HTTPAttributesFromHTTPStatusCode(res.StatusCode)...)
 	span.SetStatus(semconv.SpanStatusFromHTTPStatusCode(res.StatusCode))
-	res.Body = &wrappedBody{ctx: ctx, span: span, body: res.Body}
+	if res.StatusCode != http.StatusSwitchingProtocols {
+		res.Body = &wrappedBody{ctx: ctx, span: span, body: res.Body}
+	}
 
 	return res, err
 }
